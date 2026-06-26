@@ -1,0 +1,70 @@
+MATLAB Implementation
+Model Parameters
+k = 800;      % Spring stiffness [N/m]
+c = 2;        % Damping coefficient [Ns/m]
+delta = 0.5;  % Spring free length [m]
+m = 30;       % Vehicle mass [kg]
+g = 9.81;     % Gravitational acceleration [m/s^2]
+Road Excitation
+A = 0.05;      % Road profile amplitude [m]
+omega = 1;     % Excitation angular frequency [rad/s]
+Simulation Parameters
+t_final = 60;     % Simulation time [s]
+n = 1000;         % Number of samples
+delta_t = t_final / n;
+
+Initial conditions:
+
+t = 0;
+x_i = 0;
+vel_x_i = 0;
+Numerical Integration
+
+At each time step the algorithm:
+
+Computes the external excitation.
+Evaluates the vehicle acceleration.
+Updates velocity using Euler integration.
+Updates displacement.
+Stores the simulation results.
+
+The integration loop is implemented as
+
+for cont = 1:n
+
+    % External excitation
+
+    Fest = k*delta - m*g + ...
+           k*A*sin(omega*t) + ...
+           c*A*omega*cos(omega*t);
+
+    % Euler integration
+
+    acc_ii = (-c*vel_x_i - k*x_i + Fest)/m;
+
+    vel_x_ii = vel_x_i + acc_ii*delta_t;
+
+    x_ii = x_i + vel_x_ii*delta_t;
+
+    % Save current values
+
+    vet_x(cont) = x_i;
+    vet_t(cont) = t;
+
+    % Update time
+
+    t = t + delta_t;
+
+    % Update state variables
+
+    vel_x_i = vel_x_ii;
+    x_i = x_ii;
+
+end
+Results
+
+The simulation produces the vertical displacement of the vehicle body as a function of time.
+
+The resulting graph exhibits a sinusoidal response due to the harmonic road excitation acting on the suspension system.
+
+This exercise demonstrates the numerical solution of the equation of motion of a quarter-car suspension model using the Explicit Euler method.
