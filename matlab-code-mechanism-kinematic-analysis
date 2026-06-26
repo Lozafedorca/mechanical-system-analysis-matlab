@@ -1,0 +1,79 @@
+delta_s1 = 30 + 10i;
+delta_s2 = 50 + 30i;
+
+delta_alfa  = [90,180] * pi/180;
+delta_beta  = [30,0]   * pi/180;
+delta_gamma = [70,200] * pi/180;
+
+% Matrix M is a 4×4 complex matrix that multiplies the unknown vector
+% [z1, z2, z3, z4]^T.
+%
+% The system consists of four equations with four complex unknowns.
+% Each row of M contains the coefficients associated with one equation.
+% The first two rows correspond to the first displacement increment,
+% while the last two rows correspond to the second displacement increment.
+
+M = [exp(delta_alfa(1)*i)-1    exp(delta_beta(1)*i)-1      0                          0;
+     0                         0                           exp(delta_gamma(1)*i)-1    exp(delta_beta(1)*i)-1;
+     exp(delta_alfa(2)*i)-1    exp(delta_beta(2)*i)-1      0                          0;
+     0                         0                           exp(delta_gamma(2)*i)-1    exp(delta_beta(2)*i)-1];
+
+% Displacement increment vector
+
+delta_s = [delta_s1, delta_s1, delta_s2, delta_s2]';
+
+% Solve the linear system to obtain the complex coordinates of the vertices
+
+vet_z = inv(M) * delta_s;
+
+figure(1)
+hold on
+axis equal
+
+% Plot the reconstructed quadrilateral
+
+plot_quadrilateral(vet_z, 0, 0, 0, 'r');
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Function to plot the quadrilateral
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+function plot_quadrilateral(vet_z, offsetX, offsetY, rotation, color)
+
+    % Plot a quadrilateral defined by a vector of complex vertices.
+    %
+    % Inputs:
+    % vet_z     - Complex vector containing the vertex coordinates
+    % offsetX   - Horizontal translation
+    % offsetY   - Vertical translation
+    % rotation  - Rotation angle (radians)
+    % color     - Line color
+
+    % Extract real and imaginary parts
+
+    x = real(vet_z);
+    y = imag(vet_z);
+
+    % Apply rotation and translation
+
+    R = [cos(rotation), -sin(rotation);
+         sin(rotation),  cos(rotation)];
+
+    coords = R * [x'; y'];
+
+    x = coords(1,:) + offsetX;
+    y = coords(2,:) + offsetY;
+
+    % Close the quadrilateral by repeating the first vertex
+
+    x = [x, x(1)];
+    y = [y, y(1)];
+
+    % Plot the quadrilateral
+
+    plot(x, y, color, 'LineWidth', 2);
+
+    axis equal;
+
+end
